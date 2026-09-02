@@ -1,5 +1,6 @@
 import asyncio
-from fastapi import FastAPI, WebSocket
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from backend.config import TICK_INTERVAL_S
 from backend.simulation.intersection import Intersection
@@ -9,10 +10,20 @@ from backend.analytics.analytics import MetricsTracker
 
 app = FastAPI()
 
+# Lets the frontend (running on a different port, e.g. Vite's 5173) call this API
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 fixed_sim = Intersection()
 adaptive_sim = Intersection()
 fixed_metrics = MetricsTracker()
 adaptive_metrics = MetricsTracker()
+
+latest_state = {"fixed": None, "adaptive": None}
 
 async def run_tick():
     fixed_sim.step()
@@ -35,12 +46,18 @@ async def run_tick():
     fixed_state["metrics"] = fixed_metrics.summary()
     adaptive_state["metrics"] = adaptive_metrics.summary()
 
-    return {"fixed": fixed_state, "adaptive": adaptive_state}
+    latest_state["fixed"] = fixed_state
+    latest_state["adaptive"] = adaptive_state
 
-@app.websocket("/ws")
-async def traffic_feed(websocket: WebSocket):
-    await websocket.accept()
+async def simulation_loop():
     while True:
-        payload = await run_tick()
-        await websocket.send_json(payload)
+        await run_tick()
         await asyncio.sleep(TICK_INTERVAL_S)
+
+@app.on_event("startup")
+async def start_loop():
+    asyncio.create_task(simulation_loop())
+
+@app.get("/state")
+async def get_state():
+    return latest_state
