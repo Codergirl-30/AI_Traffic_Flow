@@ -1,0 +1,339 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #0b0d12;
+  color: #f5f7fa;
+}
+
+.app {
+  min-height: 100vh;
+  padding: 24px;
+}
+
+/* HEADER */
+
+.topbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.topbar h1 {
+  margin: 0;
+  font-size: 28px;
+  letter-spacing: -0.5px;
+}
+
+.topbar p {
+  margin: 5px 0 0;
+  color: #8b93a1;
+  font-size: 14px;
+}
+
+.system-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #aeb6c3;
+}
+
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #22c55e;
+  box-shadow: 0 0 10px #22c55e;
+}
+
+/* CONTROL BAR */
+
+.control-bar {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.control-item {
+  background: #12151c;
+  border: 1px solid #222733;
+  border-radius: 10px;
+  padding: 14px 16px;
+}
+
+.control-item span {
+  display: block;
+  color: #7f8794;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+}
+
+.control-item strong {
+  font-size: 14px;
+}
+
+/* CARDS */
+
+.dashboard {
+  display: grid;
+  gap: 20px;
+}
+
+.card {
+  background: #11141b;
+  border: 1px solid #222733;
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.section-header h2 {
+  margin: 0;
+  font-size: 18px;
+}
+
+.section-header p {
+  margin: 5px 0 0;
+  color: #7f8794;
+  font-size: 12px;
+}
+
+.live-badge {
+  color: #22c55e;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+/* INTERSECTION */
+
+.intersection {
+  position: relative;
+  height: 420px;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #171b23;
+}
+
+.center-road {
+  position: absolute;
+  width: 180px;
+  height: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #282d36;
+  border-left: 2px dashed #555d6c;
+  border-right: 2px dashed #555d6c;
+}
+
+.center-road.horizontal {
+  width: 100%;
+  height: 180px;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+  border-left: none;
+  border-right: none;
+  border-top: 2px dashed #555d6c;
+  border-bottom: 2px dashed #555d6c;
+}
+
+.intersection-center {
+  position: absolute;
+  inset: 0;
+}
+
+.intersection-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #6f7785;
+}
+
+/* ROAD LABELS */
+
+.road-label {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  z-index: 2;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.road-label.north {
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column;
+}
+
+.road-label.south {
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  flex-direction: column;
+}
+
+.road-label.west {
+  left: 25px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.road-label.east {
+  right: 25px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+/* SIGNAL */
+
+.signal {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #3a404b;
+  border: 2px solid #656d7b;
+}
+
+.signal.green {
+  background: #22c55e;
+  box-shadow: 0 0 15px #22c55e;
+}
+
+.signal.red {
+  background: #ef4444;
+  box-shadow: 0 0 15px #ef4444;
+}
+
+.signal.amber {
+  background: #f59e0b;
+  box-shadow: 0 0 15px #f59e0b;
+}
+
+/* ROAD CARDS */
+
+.road-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+}
+
+.road-card {
+  background: #171a22;
+  border: 1px solid #252b36;
+  border-radius: 10px;
+  padding: 15px;
+}
+
+.road-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.road-card-header h3 {
+  margin: 0;
+  font-size: 13px;
+}
+
+.signal-status {
+  padding: 4px 7px;
+  border-radius: 5px;
+  font-size: 9px;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.signal-status.green {
+  color: #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+}
+
+.signal-status.red {
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.signal-status.amber {
+  color: #f59e0b;
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.metric {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid #222733;
+}
+
+.metric span {
+  color: #7f8794;
+  font-size: 11px;
+}
+
+.metric strong {
+  font-size: 12px;
+}
+
+.phase-time {
+  margin-top: 12px;
+  color: #aeb6c3;
+  font-size: 10px;
+  text-align: center;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 900px) {
+  .control-bar {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .road-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .app {
+    padding: 14px;
+  }
+
+  .topbar {
+    align-items: flex-start;
+    gap: 15px;
+  }
+
+  .control-bar {
+    grid-template-columns: 1fr;
+  }
+
+  .road-grid {
+    grid-template-columns: 1fr;
+  }
+}
