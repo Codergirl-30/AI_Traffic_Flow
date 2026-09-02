@@ -4,7 +4,7 @@ from fastapi import FastAPI, WebSocket
 from backend.config import TICK_INTERVAL_S
 from backend.simulation.intersection import Intersection
 from backend.simulation.fixed_controller import decide_fixed
-#from backend.optimization.adaptive_controller import decide as decide_adaptive
+from backend.optimization.adaptive_controller import decide as decide_adaptive
 from backend.analytics.analytics import MetricsTracker
 
 app = FastAPI()
