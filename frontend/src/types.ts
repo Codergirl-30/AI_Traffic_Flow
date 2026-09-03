@@ -23,10 +23,22 @@ export interface EmergencyState {
 
 export interface TrafficState {
   timestamp: number;
-  mode: Mode;
-  weather: Weather;
-
+  mode: "fixed" | "adaptive";
+  weather: "normal" | "light_rain" | "heavy_rain";
   roads: Record<RoadName, RoadState>;
-
-  emergency: EmergencyState;
+  emergency: {
+    active: boolean;
+    direction: RoadName | null;
+    eta_s: number | null;
+  };
+  decision: {
+    green_times: Record<RoadName, number>;
+    reason: string;
+    emergency_active: boolean;
+  };
+  metrics: {
+    avg_wait_time_s: number;
+    throughput_total: number;
+    max_queue_length: number;
+  };
 }

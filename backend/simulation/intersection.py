@@ -1,5 +1,8 @@
+import random
+
 from backend.config import ROADS
 from backend.simulation.road import Road
+
 
 class Intersection:
     def __init__(self, arrival_rates: dict = None, rng=None):
@@ -16,12 +19,17 @@ class Intersection:
             road.tick_wait_times(dt)
 
     def apply_green_times(self, green_times: dict, throughput_per_sec: int = 1):
+        active_road = max(green_times, key=green_times.get)
         for direction, seconds in green_times.items():
             road = self.roads[direction]
-            road.signal_state = "green"
-            road.phase_time_remaining = seconds
-            released = road.release_vehicles(int(seconds * throughput_per_sec))
-            self.vehicles_processed += len(released)
+            if direction == active_road:
+                road.signal_state = "green"
+                road.phase_time_remaining = seconds
+                released = road.release_vehicles(int(seconds * throughput_per_sec))
+                self.vehicles_processed += len(released)
+            else:
+                road.signal_state = "red"
+                road.phase_time_remaining = 0
 
     def snapshot(self, mode: str):
         return {
@@ -30,3 +38,4 @@ class Intersection:
             "roads": {d: r.to_state() for d, r in self.roads.items()},
             "emergency": self.emergency,
         }
+    

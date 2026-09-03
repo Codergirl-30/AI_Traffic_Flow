@@ -28,20 +28,33 @@ import type { TrafficState, RoadName, SignalState } from "./types";
 
 const ROAD_ORDER: RoadName[] = ["north", "east", "south", "west"];
 
-const comparisonData = [
-  { metric: "Wait time", Fixed: 42.6, Adaptive: 31.4 },
-  { metric: "Queue", Fixed: 16.8, Adaptive: 11.2 },
-  { metric: "Throughput", Fixed: 184, Adaptive: 221 },
-];
 
 function App() {
-  const [traffic, setTraffic] = useState<TrafficState>(mockTrafficState);
+  const [bothStates, setBothStates] = useState<{
+    fixed: TrafficState;
+    adaptive: TrafficState;
+  } | null>(null);
+
+  const [trafficMode, setTrafficMode] = useState<"fixed" | "adaptive">(
+    "adaptive"
+  );
+
+  const traffic: TrafficState = bothStates
+    ? trafficMode === "fixed"
+      ? bothStates.fixed
+      : bothStates.adaptive
+    : mockTrafficState;
+
   const [isRunning, setIsRunning] = useState(false);
-  const [currentGreenRoad, setCurrentGreenRoad] =
-    useState<RoadName>("north");
-  const [signalPhase, setSignalPhase] =
-    useState<"green" | "amber" | "all-red">("green");
-  const [phaseTime, setPhaseTime] = useState(24);
+
+const [weatherSelection, setWeatherSelection] = useState<
+  "normal" | "light_rain" | "heavy_rain"
+>("normal");
+
+  const [emergencySelection, setEmergencySelection] = useState<{
+    active: boolean;
+    direction: RoadName | null;
+  }>({ active: false, direction: null });
 
   const roadData = Object.values(traffic.roads);
 
@@ -68,199 +81,49 @@ function App() {
         roadData.length
       : 0;
 
-  /*
-   * Simulation:
-   * green -> amber -> all-red -> next green.
-   * The all-red phase prevents an instant conflicting signal switch.
-   */
+    const greenRoad =
+    (Object.keys(traffic.roads) as RoadName[]).find(
+      (r) => traffic.roads[r].signal_state === "green"
+    ) ?? "north";
+  const greenPhaseTime = traffic.roads[greenRoad].phase_time_remaining_s;
+
   useEffect(() => {
     if (!isRunning) return;
 
-    const timer = window.setInterval(() => {
-      setTraffic((current) => {
-        const currentIndex = ROAD_ORDER.indexOf(currentGreenRoad);
+    const poll = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/state");
+        const data = await res.json();
+        setBothStates(data);
+      } catch (e) {
+        console.error("Failed to fetch traffic state", e);
+      }
+    };
 
-        let nextGreenRoad = currentGreenRoad;
-        let nextPhase = signalPhase;
-        let nextPhaseTime = phaseTime;
-
-        if (signalPhase === "green") {
-          if (phaseTime > 1) {
-            nextPhaseTime = phaseTime - 1;
-          } else {
-            nextPhase = "amber";
-            nextPhaseTime = 3;
-          }
-        } else if (signalPhase === "amber") {
-          if (phaseTime > 1) {
-            nextPhaseTime = phaseTime - 1;
-          } else {
-            nextPhase = "all-red";
-            nextPhaseTime = 2;
-          }
-        } else {
-          if (phaseTime > 1) {
-            nextPhaseTime = phaseTime - 1;
-          } else {
-            /*
-             * Emergency traffic gets priority after the safe all-red phase.
-             * Otherwise rotate normally through the four approaches.
-             */
-            if (
-              current.emergency.active &&
-              current.emergency.direction !== null
-            ) {
-              nextGreenRoad = current.emergency.direction;
-            } else {
-              nextGreenRoad =
-                ROAD_ORDER[(currentIndex + 1) % ROAD_ORDER.length];
-            }
-
-            nextPhase = "green";
-            nextPhaseTime = calculateGreenTime(
-              current.mode,
-              current.roads[nextGreenRoad]
-            );
-          }
-        }
-
-        const updatedRoads = Object.fromEntries(
-          Object.entries(current.roads).map(([road, data]) => {
-            const roadName = road as RoadName;
-
-            let newSignalState: SignalState = "red";
-            let newTimer = 0;
-
-            if (
-              roadName === nextGreenRoad &&
-              nextPhase === "green"
-            ) {
-              newSignalState = "green";
-              newTimer = nextPhaseTime;
-            }
-
-            if (
-              roadName === nextGreenRoad &&
-              nextPhase === "amber"
-            ) {
-              newSignalState = "amber";
-              newTimer = nextPhaseTime;
-            }
-
-            if (nextPhase === "all-red") {
-              newSignalState = "red";
-              newTimer = nextPhaseTime;
-            }
-
-            const vehicleChange = Math.floor(Math.random() * 5) - 2;
-
-            const newVehicleCount = Math.max(
-              0,
-              data.vehicle_count + vehicleChange
-            );
-
-            const newQueueLength = Math.max(
-              0,
-              data.queue_length +
-                Math.floor(Math.random() * 3) -
-                1
-            );
-
-            const newSpeed = Math.max(
-              5,
-              Math.min(
-                60,
-                data.avg_speed_kmph + (Math.random() * 4 - 2)
-              )
-            );
-
-            const newWaitTime = Math.max(
-              0,
-              data.avg_wait_time_s + (Math.random() * 4 - 2)
-            );
-
-            return [
-              road,
-              {
-                ...data,
-                vehicle_count: newVehicleCount,
-                queue_length: newQueueLength,
-                avg_speed_kmph: Number(newSpeed.toFixed(1)),
-                avg_wait_time_s: Number(newWaitTime.toFixed(1)),
-                signal_state: newSignalState,
-                phase_time_remaining_s: newTimer,
-              },
-            ];
-          })
-        );
-
-        return {
-          ...current,
-          timestamp: current.timestamp + 1,
-          roads: updatedRoads as TrafficState["roads"],
-          emergency:
-            current.emergency.active &&
-            current.emergency.eta_s !== null
-              ? {
-                  ...current.emergency,
-                  eta_s: Math.max(0, current.emergency.eta_s - 1),
-                }
-              : current.emergency,
-        };
-      });
-
-      setCurrentGreenRoad((current) => {
-        /*
-         * The actual road change happens when the state machine reaches
-         * the end of all-red. We infer the next road here only when the
-         * current phase is all-red and its timer is one.
-         */
-        if (signalPhase === "all-red" && phaseTime <= 1) {
-          return traffic.emergency.active && traffic.emergency.direction
-            ? traffic.emergency.direction
-            : ROAD_ORDER[
-                (ROAD_ORDER.indexOf(current) + 1) % ROAD_ORDER.length
-              ];
-        }
-        return current;
-      });
-
-      setSignalPhase((current) => {
-        if (current === "green" && phaseTime <= 1) return "amber";
-        if (current === "amber" && phaseTime <= 1) return "all-red";
-        if (current === "all-red" && phaseTime <= 1) return "green";
-        return current;
-      });
-
-      setPhaseTime((current) => {
-        if (current > 1) return current - 1;
-        if (signalPhase === "green") return 3;
-        if (signalPhase === "amber") return 2;
-
-        const nextRoad =
-          traffic.emergency.active && traffic.emergency.direction
-            ? traffic.emergency.direction
-            : ROAD_ORDER[
-                (ROAD_ORDER.indexOf(currentGreenRoad) + 1) %
-                  ROAD_ORDER.length
-              ];
-
-        return calculateGreenTime(traffic.mode, traffic.roads[nextRoad]);
-      });
-    }, 1000);
-
+    poll();
+    const timer = window.setInterval(poll, 1000);
     return () => window.clearInterval(timer);
-  }, [
-    isRunning,
-    currentGreenRoad,
-    signalPhase,
-    phaseTime,
-    traffic.emergency.active,
-    traffic.emergency.direction,
-    traffic.mode,
-    traffic.roads,
-  ]);
+  }, [isRunning]);
 
+  const comparisonData = bothStates
+    ? [
+        {
+          metric: "Wait time",
+          Fixed: bothStates.fixed.metrics.avg_wait_time_s,
+          Adaptive: bothStates.adaptive.metrics.avg_wait_time_s,
+        },
+        {
+          metric: "Queue",
+          Fixed: bothStates.fixed.metrics.max_queue_length,
+          Adaptive: bothStates.adaptive.metrics.max_queue_length,
+        },
+        {
+          metric: "Throughput",
+          Fixed: bothStates.fixed.metrics.throughput_total,
+          Adaptive: bothStates.adaptive.metrics.throughput_total,
+        },
+      ]
+    : [];
   /*
    * The values above are intentionally kept close to the original MVP
    * simulation. The visual layer below is the corridor-first redesign.
@@ -275,10 +138,7 @@ function App() {
 
   const resetSimulation = () => {
     setIsRunning(false);
-    setTraffic(mockTrafficState);
-    setCurrentGreenRoad("north");
-    setSignalPhase("green");
-    setPhaseTime(24);
+    setBothStates(null);
   };
 
   return (
@@ -293,7 +153,7 @@ function App() {
             </p>
             <TextScramble
               className="mt-1 text-5xl font-black leading-none tracking-[-0.05em] sm:text-6xl"
-              duration={3}
+              duration={1.2}
               characterSet=". "
             >
               FLOW
@@ -325,7 +185,7 @@ function App() {
                 onClick={() => setIsRunning(true)}
                 className="rounded-xl bg-[#4E9B68] px-5 py-2.5 font-bold text-white transition-all duration-150 hover:brightness-105 active:translate-y-[2px] active:scale-[0.98]"
               >
-                ▶ Start
+                ▶️ Start
               </button>
 
               <button
@@ -348,26 +208,16 @@ function App() {
             <ControlGroup label="Signal mode">
               <button
                 type="button"
-                onClick={() =>
-                  setTraffic((current) => ({
-                    ...current,
-                    mode: "fixed",
-                  }))
-                }
-                className={controlButton(traffic.mode === "fixed")}
+                onClick={() => setTrafficMode("fixed")}
+                className={controlButton(trafficMode === "fixed")}
               >
                 Fixed
               </button>
 
               <button
                 type="button"
-                onClick={() =>
-                  setTraffic((current) => ({
-                    ...current,
-                    mode: "adaptive",
-                  }))
-                }
-                className={controlButton(traffic.mode === "adaptive")}
+                onClick={() => setTrafficMode("adaptive")}
+                className={controlButton(trafficMode === "adaptive")}
               >
                 Adaptive
               </button>
@@ -376,39 +226,24 @@ function App() {
             <ControlGroup label="Weather">
               <button
                 type="button"
-                onClick={() =>
-                  setTraffic((current) => ({
-                    ...current,
-                    weather: "normal",
-                  }))
-                }
-                className={controlButton(traffic.weather === "normal")}
+                onClick={() => setWeatherSelection("normal")}
+                className={controlButton(weatherSelection === "normal")}
               >
                 Clear
               </button>
 
               <button
                 type="button"
-                onClick={() =>
-                  setTraffic((current) => ({
-                    ...current,
-                    weather: "light_rain",
-                  }))
-                }
-                className={controlButton(traffic.weather === "light_rain")}
+                onClick={() => setWeatherSelection("light_rain")}
+                className={controlButton(weatherSelection === "light_rain")}
               >
                 Light rain
               </button>
 
               <button
                 type="button"
-                onClick={() =>
-                  setTraffic((current) => ({
-                    ...current,
-                    weather: "heavy_rain",
-                  }))
-                }
-                className={controlButton(traffic.weather === "heavy_rain")}
+                onClick={() => setWeatherSelection("heavy_rain")}
+                className={controlButton(weatherSelection === "heavy_rain")}
               >
                 Heavy rain
               </button>
@@ -470,8 +305,8 @@ function App() {
               label="A"
               side="left"
               traffic={traffic}
-              currentGreenRoad={currentGreenRoad}
-              phaseTime={phaseTime}
+              currentGreenRoad={greenRoad}
+              phaseTime={greenPhaseTime}
               inboundCount={traffic.roads.east.vehicle_count}
               showPreGreen={false}
             />
@@ -480,8 +315,8 @@ function App() {
               label="B"
               side="right"
               traffic={traffic}
-              currentGreenRoad={currentGreenRoad}
-              phaseTime={phaseTime}
+              currentGreenRoad={greenRoad}
+              phaseTime={greenPhaseTime}
               inboundCount={inboundSoon}
               showPreGreen={isPreGreen}
             />
@@ -583,18 +418,18 @@ function App() {
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             <ComparisonCard
               metric="Average wait time"
-              fixed="42.6 s"
-              adaptive="31.4 s"
+              fixed={`${bothStates?.fixed.metrics.avg_wait_time_s ?? "–"} s`}
+              adaptive={`${bothStates?.adaptive.metrics.avg_wait_time_s ?? "–"} s`}
             />
             <ComparisonCard
               metric="Average queue"
-              fixed="16.8"
-              adaptive="11.2"
+              fixed={`${bothStates?.fixed.metrics.max_queue_length ?? "–"}`}
+              adaptive={`${bothStates?.adaptive.metrics.max_queue_length ?? "–"}`}
             />
             <ComparisonCard
               metric="Throughput"
-              fixed="184 veh/hr"
-              adaptive="221 veh/hr"
+              fixed={`${bothStates?.fixed.metrics.throughput_total ?? "–"} veh/hr`}
+              adaptive={`${bothStates?.adaptive.metrics.throughput_total ?? "–"} veh/hr`}
             />
           </div>
 
@@ -660,29 +495,19 @@ function App() {
                 (direction) => {
                   const active =
                     direction === "off"
-                      ? !traffic.emergency.active
-                      : traffic.emergency.direction === direction;
+                      ? !emergencySelection.active
+                      : emergencySelection.direction === direction;
 
                   return (
                     <button
                       type="button"
                       key={direction}
                       onClick={() =>
-                        setTraffic((current) => ({
-                          ...current,
-                          emergency:
-                            direction === "off"
-                              ? {
-                                  active: false,
-                                  direction: null,
-                                  eta_s: null,
-                                }
-                              : {
-                                  active: true,
-                                  direction,
-                                  eta_s: 15,
-                                },
-                        }))
+                        setEmergencySelection(
+                          direction === "off"
+                            ? { active: false, direction: null }
+                            : { active: true, direction }
+                        )
                       }
                       className={`rounded-xl px-4 py-2 text-sm font-bold capitalize transition-all active:translate-y-[2px] ${
                         active
@@ -700,7 +525,7 @@ function App() {
             </div>
           </div>
 
-          {traffic.emergency.active && (
+          {emergencySelection.active && (
             <div className="mt-5 flex flex-wrap gap-8 rounded-xl border border-[#E7BABA] bg-[#FCEFEF] px-5 py-4">
               <div>
                 <p className="text-xs text-[#9B5B5B]">Status</p>
@@ -712,14 +537,7 @@ function App() {
               <div>
                 <p className="text-xs text-[#9B5B5B]">Direction</p>
                 <p className="mt-1 font-bold uppercase">
-                  {traffic.emergency.direction}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-xs text-[#9B5B5B]">ETA</p>
-                <p className="mt-1 font-bold">
-                  {traffic.emergency.eta_s ?? 0}s
+                  {emergencySelection.direction}
                 </p>
               </div>
             </div>
@@ -840,16 +658,16 @@ function NavigationDock() {
       target: "corridor",
       icon: <Route className="h-full w-full" />,
     },
-    
-    {
-      title: "Emergency",
-      target: "emergency",
-      icon: <Siren className="h-full w-full" />,
-    },
+
     {
       title: "Compare",
       target: "strategy",
       icon: <GitCompareArrows className="h-full w-full" />,
+    },
+    {
+      title: "Emergency",
+      target: "emergency",
+      icon: <Siren className="h-full w-full" />,
     },
     {
       title: "Traffic data",
