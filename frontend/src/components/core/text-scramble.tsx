@@ -9,8 +9,8 @@ interface TextScrambleProps {
 
 export function TextScramble({
   children,
-  duration = 1.2,
-  characterSet = ". ",
+  duration = 2.2,
+  characterSet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789",
   className = "",
 }: TextScrambleProps) {
   const [displayText, setDisplayText] = useState(children);
@@ -20,8 +20,8 @@ export function TextScramble({
     if (hasRun.current) return;
     hasRun.current = true;
 
-    const chars = characterSet.length > 0 ? characterSet : ". ";
-    const totalFrames = Math.max(8, Math.floor(duration * 30));
+    const chars = characterSet || "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+    const totalFrames = Math.max(30, Math.floor(duration * 30));
     let frame = 0;
 
     const timer = window.setInterval(() => {
@@ -36,15 +36,16 @@ export function TextScramble({
 
       const revealed = Math.floor(children.length * progress);
 
-      const scrambled = children
-        .split("")
-        .map((character, index) => {
-          if (index < revealed) return character;
-          return chars[Math.floor(Math.random() * chars.length)];
-        })
-        .join("");
-
-      setDisplayText(scrambled);
+      setDisplayText(
+        children
+          .split("")
+          .map((character, index) =>
+            index < revealed
+              ? character
+              : chars[Math.floor(Math.random() * chars.length)]
+          )
+          .join("")
+      );
     }, 1000 / 30);
 
     return () => window.clearInterval(timer);

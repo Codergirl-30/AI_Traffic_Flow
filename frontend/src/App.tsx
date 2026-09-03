@@ -293,7 +293,7 @@ function App() {
             </p>
             <TextScramble
               className="mt-1 text-5xl font-black leading-none tracking-[-0.05em] sm:text-6xl"
-              duration={3}
+              duration={1.2}
               characterSet=". "
             >
               FLOW
@@ -840,16 +840,16 @@ function NavigationDock() {
       target: "corridor",
       icon: <Route className="h-full w-full" />,
     },
-    
-    {
-      title: "Emergency",
-      target: "emergency",
-      icon: <Siren className="h-full w-full" />,
-    },
+
     {
       title: "Compare",
       target: "strategy",
       icon: <GitCompareArrows className="h-full w-full" />,
+    },
+    {
+      title: "Emergency",
+      target: "emergency",
+      icon: <Siren className="h-full w-full" />,
     },
     {
       title: "Traffic data",

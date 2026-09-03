@@ -14,22 +14,18 @@ export function InfiniteSlider({
   duration = 30,
 }: InfiniteSliderProps) {
   return (
-    <div className="relative w-full overflow-hidden">
+    <div className="w-full overflow-hidden">
       <div
         className="flex w-max items-center"
         style={{
           gap: `${gap}px`,
-          animation: `infinite-slider-scroll ${duration}s linear infinite`,
+          animation: `infinite-slider ${duration}s linear infinite`,
           animationDirection: reverse ? "reverse" : "normal",
         }}
       >
-        <div
-          className="flex shrink-0 items-center"
-          style={{ gap: `${gap}px` }}
-        >
+        <div className="flex shrink-0 items-center" style={{ gap: `${gap}px` }}>
           {children}
         </div>
-
         <div
           className="flex shrink-0 items-center"
           style={{ gap: `${gap}px` }}
@@ -38,15 +34,10 @@ export function InfiniteSlider({
           {children}
         </div>
       </div>
-
       <style>{`
-        @keyframes infinite-slider-scroll {
-          from {
-            transform: translateX(0);
-          }
-          to {
-            transform: translateX(calc(-50% - ${gap / 2}px));
-          }
+        @keyframes infinite-slider {
+          from { transform: translateX(0); }
+          to { transform: translateX(calc(-50% - ${gap / 2}px)); }
         }
       `}</style>
     </div>
