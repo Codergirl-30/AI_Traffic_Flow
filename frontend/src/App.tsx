@@ -298,14 +298,14 @@ const averageWaitTime =
 
     <button
       onClick={() => setIsRunning(true)}
-      className="px-5 py-2.5 rounded-lg bg-emerald-500 text-slate-950 font-bold hover:bg-emerald-400 transition"
+      className="px-5 py-2.5 rounded-lg bg-emerald-500 text-slate-950 font-bold hover:bg-emerald-400 opacity-75 hover:opacity-100 transition-all duration-150 ease-out active:opacity-100 active:translate-y-[4px] active:scale-[0.97] active:brightness-125 active:shadow-[0_0_8px_rgba(255,255,255,0.45),0_0_18px_rgba(255,255,255,0.30),0_0_30px_rgba(255,255,255,0.18)]"
     >
       ▶ START
     </button>
 
     <button
       onClick={() => setIsRunning(false)}
-      className="px-5 py-2.5 rounded-lg bg-red-500 text-white font-bold hover:bg-red-400 transition"
+      className="px-5 py-2.5 rounded-lg bg-red-500 text-white font-bold hover:bg-red-400 opacity-75 hover:opacity-100 transition-all duration-150 ease-out active:opacity-100 active:translate-y-[4px] active:scale-[0.97] active:brightness-125 active:shadow-[0_0_8px_rgba(255,255,255,0.45),0_0_18px_rgba(255,255,255,0.30),0_0_30px_rgba(255,255,255,0.18)]"
     >
       ■ STOP
     </button>
@@ -319,7 +319,7 @@ const averageWaitTime =
   setSignalPhase("green");
   setPhaseTime(24);
 }}
-      className="px-5 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white font-bold hover:bg-slate-700 transition"
+      className="px-5 py-2.5 rounded-lg bg-slate-800 border border-slate-700 text-white font-bold hover:bg-slate-700 opacity-75 hover:opacity-100 transition-all duration-150 ease-out active:opacity-100 active:translate-y-[4px] active:scale-[0.97] active:brightness-125 active:shadow-[0_0_8px_rgba(255,255,255,0.45),0_0_18px_rgba(255,255,255,0.30),0_0_30px_rgba(255,255,255,0.18)]"
     >
       ↻ RESET
     </button>
@@ -345,11 +345,7 @@ const averageWaitTime =
               mode: "fixed",
             }))
           }
-          className={`px-4 py-2 rounded-md text-sm font-bold transition ${
-            traffic.mode === "fixed"
-              ? "bg-cyan-500 text-slate-950"
-              : "text-slate-400 hover:text-white"
-          }`}
+          className={`px-4 py-2 rounded-md text-sm font-bold ${ traffic.mode === "fixed" ? "bg-cyan-500 text-slate-950" : "text-slate-400 hover:text-white" } opacity-75 hover:opacity-100 transition-all duration-150 ease-out active:opacity-100 active:translate-y-[4px] active:scale-[0.97] active:brightness-125 active:shadow-[0_0_8px_rgba(255,255,255,0.45),0_0_18px_rgba(255,255,255,0.30),0_0_30px_rgba(255,255,255,0.18)]`}
         >
           FIXED
         </button>
@@ -361,11 +357,7 @@ const averageWaitTime =
               mode: "adaptive",
             }))
           }
-          className={`px-4 py-2 rounded-md text-sm font-bold transition ${
-            traffic.mode === "adaptive"
-              ? "bg-cyan-500 text-slate-950"
-              : "text-slate-400 hover:text-white"
-          }`}
+          className={`px-4 py-2 rounded-md text-sm font-bold ${ traffic.mode === "adaptive" ? "bg-cyan-500 text-slate-950" : "text-slate-400 hover:text-white" } opacity-75 hover:opacity-100 transition-all duration-150 ease-out active:opacity-100 active:translate-y-[4px] active:scale-[0.97] active:brightness-125 active:shadow-[0_0_8px_rgba(255,255,255,0.45),0_0_18px_rgba(255,255,255,0.30),0_0_30px_rgba(255,255,255,0.18)]`}
         >
           ADAPTIVE
         </button>
@@ -389,11 +381,7 @@ const averageWaitTime =
               weather: "normal",
             }))
           }
-          className={`px-4 py-2 rounded-md text-sm font-bold transition ${
-            traffic.weather === "normal"
-              ? "bg-cyan-500 text-slate-950"
-              : "text-slate-400 hover:text-white"
-          }`}
+          className={`px-4 py-2 rounded-md text-sm font-bold ${ traffic.weather === "normal" ? "bg-cyan-500 text-slate-950" : "text-slate-400 hover:text-white" } opacity-75 hover:opacity-100 transition-all duration-150 ease-out active:opacity-100 active:translate-y-[4px] active:scale-[0.97] active:brightness-125 active:shadow-[0_0_8px_rgba(255,255,255,0.45),0_0_18px_rgba(255,255,255,0.30),0_0_30px_rgba(255,255,255,0.18)]`}
         >
           NORMAL
         </button>
@@ -405,11 +393,7 @@ const averageWaitTime =
               weather: "light_rain",
             }))
           }
-          className={`px-4 py-2 rounded-md text-sm font-bold transition ${
-            traffic.weather === "light_rain"
-              ? "bg-cyan-500 text-slate-950"
-              : "text-slate-400 hover:text-white"
-          }`}
+          className={`px-4 py-2 rounded-md text-sm font-bold ${ traffic.weather === "light_rain" ? "bg-cyan-500 text-slate-950" : "text-slate-400 hover:text-white" } opacity-75 hover:opacity-100 transition-all duration-150 ease-out active:opacity-100 active:translate-y-[4px] active:scale-[0.97] active:brightness-125 active:shadow-[0_0_8px_rgba(255,255,255,0.45),0_0_18px_rgba(255,255,255,0.30),0_0_30px_rgba(255,255,255,0.18)]`}
         >
           LIGHT RAIN
         </button>
@@ -421,11 +405,7 @@ const averageWaitTime =
               weather: "heavy_rain",
             }))
           }
-          className={`px-4 py-2 rounded-md text-sm font-bold transition ${
-            traffic.weather === "heavy_rain"
-              ? "bg-cyan-500 text-slate-950"
-              : "text-slate-400 hover:text-white"
-          }`}
+          className={`px-4 py-2 rounded-md text-sm font-bold ${ traffic.weather === "heavy_rain" ? "bg-cyan-500 text-slate-950" : "text-slate-400 hover:text-white" } opacity-75 hover:opacity-100 transition-all duration-150 ease-out active:opacity-100 active:translate-y-[4px] active:scale-[0.97] active:brightness-125 active:shadow-[0_0_8px_rgba(255,255,255,0.45),0_0_18px_rgba(255,255,255,0.30),0_0_30px_rgba(255,255,255,0.18)]`}
         >
           HEAVY RAIN
         </button>
@@ -550,11 +530,7 @@ const averageWaitTime =
             },
           }))
         }
-        className={`px-4 py-2 rounded-lg text-sm font-bold transition ${
-          !traffic.emergency.active
-            ? "bg-emerald-500 text-slate-950"
-            : "bg-slate-800 text-slate-400 hover:text-white"
-        }`}
+        className={`px-4 py-2 rounded-lg text-sm font-bold ${ !traffic.emergency.active ? "bg-emerald-500 text-slate-950" : "bg-slate-800 text-slate-400 hover:text-white" } opacity-75 hover:opacity-100 transition-all duration-150 ease-out active:opacity-100 active:translate-y-[4px] active:scale-[0.97] active:brightness-125 active:shadow-[0_0_8px_rgba(255,255,255,0.45),0_0_18px_rgba(255,255,255,0.30),0_0_30px_rgba(255,255,255,0.18)]`}
       >
         OFF
       </button>
@@ -572,11 +548,7 @@ const averageWaitTime =
             },
           }))
         }
-        className={`px-4 py-2 rounded-lg text-sm font-bold transition ${
-          traffic.emergency.direction === "north"
-            ? "bg-red-500 text-white"
-            : "bg-slate-800 text-slate-400 hover:text-white"
-        }`}
+        className={`px-4 py-2 rounded-lg text-sm font-bold ${ traffic.emergency.direction === "north" ? "bg-red-500 text-white" : "bg-slate-800 text-slate-400 hover:text-white" } opacity-75 hover:opacity-100 transition-all duration-150 ease-out active:opacity-100 active:translate-y-[4px] active:scale-[0.97] active:brightness-125 active:shadow-[0_0_8px_rgba(255,255,255,0.45),0_0_18px_rgba(255,255,255,0.30),0_0_30px_rgba(255,255,255,0.18)]`}
       >
         NORTH
       </button>
@@ -594,11 +566,7 @@ const averageWaitTime =
             },
           }))
         }
-        className={`px-4 py-2 rounded-lg text-sm font-bold transition ${
-          traffic.emergency.direction === "east"
-            ? "bg-red-500 text-white"
-            : "bg-slate-800 text-slate-400 hover:text-white"
-        }`}
+        className={`px-4 py-2 rounded-lg text-sm font-bold ${ traffic.emergency.direction === "east" ? "bg-red-500 text-white" : "bg-slate-800 text-slate-400 hover:text-white" } opacity-75 hover:opacity-100 transition-all duration-150 ease-out active:opacity-100 active:translate-y-[4px] active:scale-[0.97] active:brightness-125 active:shadow-[0_0_8px_rgba(255,255,255,0.45),0_0_18px_rgba(255,255,255,0.30),0_0_30px_rgba(255,255,255,0.18)]`}
       >
         EAST
       </button>
@@ -616,11 +584,7 @@ const averageWaitTime =
             },
           }))
         }
-        className={`px-4 py-2 rounded-lg text-sm font-bold transition ${
-          traffic.emergency.direction === "south"
-            ? "bg-red-500 text-white"
-            : "bg-slate-800 text-slate-400 hover:text-white"
-        }`}
+        className={`px-4 py-2 rounded-lg text-sm font-bold ${ traffic.emergency.direction === "south" ? "bg-red-500 text-white" : "bg-slate-800 text-slate-400 hover:text-white" } opacity-75 hover:opacity-100 transition-all duration-150 ease-out active:opacity-100 active:translate-y-[4px] active:scale-[0.97] active:brightness-125 active:shadow-[0_0_8px_rgba(255,255,255,0.45),0_0_18px_rgba(255,255,255,0.30),0_0_30px_rgba(255,255,255,0.18)]`}
       >
         SOUTH
       </button>
@@ -638,11 +602,7 @@ const averageWaitTime =
             },
           }))
         }
-        className={`px-4 py-2 rounded-lg text-sm font-bold transition ${
-          traffic.emergency.direction === "west"
-            ? "bg-red-500 text-white"
-            : "bg-slate-800 text-slate-400 hover:text-white"
-        }`}
+        className={`px-4 py-2 rounded-lg text-sm font-bold ${ traffic.emergency.direction === "west" ? "bg-red-500 text-white" : "bg-slate-800 text-slate-400 hover:text-white" } opacity-75 hover:opacity-100 transition-all duration-150 ease-out active:opacity-100 active:translate-y-[4px] active:scale-[0.97] active:brightness-125 active:shadow-[0_0_8px_rgba(255,255,255,0.45),0_0_18px_rgba(255,255,255,0.30),0_0_30px_rgba(255,255,255,0.18)]`}
       >
         WEST
       </button>
