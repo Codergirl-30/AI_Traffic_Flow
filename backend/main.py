@@ -1,4 +1,5 @@
 import asyncio
+import random
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -18,11 +19,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-fixed_sim = Intersection()
-adaptive_sim = Intersection()
+SEED = 42
+fixed_sim = Intersection(rng=random.Random(SEED))
+adaptive_sim = Intersection(rng=random.Random(SEED))
 fixed_metrics = MetricsTracker()
 adaptive_metrics = MetricsTracker()
-
 latest_state = {"fixed": None, "adaptive": None}
 
 async def run_tick():
@@ -37,6 +38,9 @@ async def run_tick():
 
     fixed_sim.apply_green_times(fixed_decision["green_times"])
     adaptive_sim.apply_green_times(adaptive_decision["green_times"])
+
+    fixed_metrics.record_release(fixed_sim.vehicles_processed - fixed_metrics.throughput_total)
+    adaptive_metrics.record_release(adaptive_sim.vehicles_processed - adaptive_metrics.throughput_total)
 
     fixed_metrics.record_tick(fixed_state)
     adaptive_metrics.record_tick(adaptive_state)

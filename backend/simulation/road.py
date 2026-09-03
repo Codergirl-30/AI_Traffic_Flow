@@ -3,15 +3,16 @@ from collections import deque
 from backend.simulation.vehicle import Vehicle
 
 class Road:
-    def __init__(self, direction: str, arrival_rate: float = 0.3):
+    def __init__(self, direction: str, arrival_rate: float = 0.3, rng=None):
         self.direction = direction
         self.arrival_rate = arrival_rate
+        self.rng = rng or random
         self.queue = deque()
         self.signal_state = "red"
         self.phase_time_remaining = 0
 
     def maybe_spawn_vehicle(self, is_emergency: bool = False):
-        if random.random() < self.arrival_rate:
+        if self.rng.random() < self.arrival_rate:
             self.queue.append(Vehicle(self.direction, is_emergency))
 
     def tick_wait_times(self, dt: float = 1.0):

@@ -2,9 +2,10 @@ from backend.config import ROADS
 from backend.simulation.road import Road
 
 class Intersection:
-    def __init__(self, arrival_rates: dict = None):
+    def __init__(self, arrival_rates: dict = None, rng=None):
+        rng = rng or random
         arrival_rates = arrival_rates or {r: 0.3 for r in ROADS}
-        self.roads = {r: Road(r, arrival_rates[r]) for r in ROADS}
+        self.roads = {r: Road(r, arrival_rates[r], rng=rng) for r in ROADS}
         self.weather = "normal"
         self.emergency = {"active": False, "direction": None, "eta_s": None}
         self.vehicles_processed = 0
