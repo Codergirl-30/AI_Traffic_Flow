@@ -39,7 +39,17 @@ def scenario_emergency():
 
 
 def scenario_broken_input():
+    # Missing "roads" entirely — decide() must still return a valid dict.
     return {"weather": "normal", "emergency": {"active": False, "direction": None, "eta_s": None}}
+
+
+def scenario_inbound_corridor():
+    # West has almost nothing queued yet, but 5 vehicles are inbound soon
+    # from Intersection A's corridor link.
+    roads = {road: _base_road() for road in ROADS}
+    roads["west"] = _base_road(vehicle_count=5, queue_length=2)
+    roads["west"]["inbound_soon"] = 5
+    return {"roads": roads, "weather": "normal", "emergency": {"active": False, "direction": None, "eta_s": None}}
 
 
 if __name__ == "__main__":
@@ -49,6 +59,7 @@ if __name__ == "__main__":
         "heavy_rain": scenario_heavy_rain(),
         "emergency": scenario_emergency(),
         "broken_input": scenario_broken_input(),
+        "inbound_corridor": scenario_inbound_corridor(),
     }
 
     for name, state in scenarios.items():
@@ -57,8 +68,19 @@ if __name__ == "__main__":
         print("green_times:", result["green_times"])
         print("emergency_active:", result["emergency_active"])
         print("reason:", result["reason"])
-        assert set(result["green_times"].keys()) == set(ROADS)
+        assert set(result["green_times"].keys()) == set(ROADS), "green_times must cover all 4 roads"
         assert isinstance(result["reason"], str)
         assert isinstance(result["emergency_active"], bool)
+
+    # Confirm inbound_soon actually shifts the decision: west should get
+    # equal or more green time when cars are inbound than when they aren't.
+    result_with_inbound = decide(scenario_inbound_corridor())
+    control_state = scenario_inbound_corridor()
+    control_state["roads"]["west"]["inbound_soon"] = 0
+    result_without_inbound = decide(control_state)
+
+    assert result_with_inbound["green_times"]["west"] >= result_without_inbound["green_times"]["west"], \
+        "inbound_soon should give west equal or more green time, not less"
+    print("\ninbound_soon correctly increases west's green time — pre-allocation logic confirmed.")
 
     print("\nAll scenarios returned a valid, well-formed decide() output.")

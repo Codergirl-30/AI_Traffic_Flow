@@ -43,6 +43,7 @@ def _score_road(road: str, road_state: dict, weather_profile: dict, predicted: f
     vehicle_count = road_state.get("vehicle_count", 0)
     avg_wait_time_s = road_state.get("avg_wait_time_s", 0.0)
     avg_speed_kmph = road_state.get("avg_speed_kmph", 30.0)
+    inbound_soon = road_state.get("inbound_soon", 0)  # vehicles arriving soon from an upstream intersection
 
     score = (
         weather_profile["queue_weight"] * queue_length
@@ -50,6 +51,7 @@ def _score_road(road: str, road_state: dict, weather_profile: dict, predicted: f
         + weather_profile["wait_weight"] * 0.4 * avg_wait_time_s
         + weather_profile["speed_weight"] * max(0.0, (40 - avg_speed_kmph)) * 0.2
         + predicted
+        + 0.6 * inbound_soon  # pre-allocate green before cars physically arrive
     )
     return max(0.0, score)
 

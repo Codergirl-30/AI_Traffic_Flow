@@ -29,4 +29,11 @@ SIGNAL_STATES = ("red", "green", "amber")
 WEATHER_STATES = ("normal", "light_rain", "heavy_rain")
 
 # --- Update cadence ---
-TICK_INTERVAL_S = 1  # one simulated second per TrafficState push
+TICK_INTERVAL_S = 1  # one simulated second per TrafficState push  
+
+
+CORRIDOR_TRAVEL_TIME_S = 8   # fixed travel time from A's output road to B's input road
+CORRIDOR_LINK = {
+    "from_road": "east",   # Intersection A's output
+    "to_road": "west",     # Intersection B's input
+}
